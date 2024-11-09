@@ -6,6 +6,10 @@ const PORT = 3001; // Puedes cambiar el puerto si es necesario
 
 app.use(express.json());
 
+app.get('/', (req, res) => {
+    res.send('¡Hola desde Express en Netlify!');
+  });
+
 app.post('/generate-pdf', async (req, res) => {
     const { htmlContent } = req.body;
 
