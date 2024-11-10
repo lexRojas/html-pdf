@@ -2,32 +2,46 @@ const express = require('express');
 const { chromium } = require('playwright');
 
 const app = express();
-const PORT = 3001; // Puedes cambiar el puerto si es necesario
-
-app.use(express.json());
+const PORT = process.env.PORT || 3000;
 
 app.get('/', (req, res) => {
-    res.send('¡Hola desde Express en Netlify!');
-  });
+  res.send('¡Bienvenido! Usa /pdf?url=tu-url-para-convertir');
+});
 
-app.post('/generate-pdf', async (req, res) => {
-    const { htmlContent } = req.body;
+app.get('/pdf', async (req, res) => {
+  const { url } = req.query;
 
-    try {
-        const browser = await chromium.launch();
-        const page = await browser.newPage();
-        await page.setContent(htmlContent, { waitUntil: 'domcontentloaded' });
-        const pdfBuffer = await page.pdf({ format: 'A4' });
+  if (!url) {
+    return res.status(400).send('URL es requerida como parámetro de la consulta.');
+  }
 
-        await browser.close();
-        res.setHeader('Content-Type', 'application/pdf');
-        res.send(pdfBuffer);
-    } catch (error) {
-        console.error('Error generating PDF:', error);
-        res.status(500).send('Failed to generate PDF');
-    }
+  try {
+    // Lanzar el navegador
+    const browser = await chromium.launch();
+    const page = await browser.newPage();
+
+    // Navegar a la URL proporcionada
+    await page.goto(url);
+
+    // Generar el PDF
+    const pdfBuffer = await page.pdf({ format: 'A4' });
+
+    // Cerrar el navegador
+    await browser.close();
+
+    // Enviar el PDF como respuesta
+    res.set({
+      'Content-Type': 'application/pdf',
+      'Content-Disposition': `attachment; filename="output.pdf"`
+    });
+    res.send(pdfBuffer);
+
+  } catch (error) {
+    console.error('Error al generar el PDF:', error);
+    res.status(500).send('Ocurrió un error al generar el PDF.');
+  }
 });
 
 app.listen(PORT, () => {
-    console.log(`Server running at http://localhost:${PORT}`);
+  console.log(`Servidor corriendo en el puerto ${PORT}`);
 });

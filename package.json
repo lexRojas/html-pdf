@@ -1,7 +1,17 @@
 {
+  "name": "my-express-app",
+  "version": "1.0.0",
+  "description": "An Express.js app with Playwright deployed on Heroku",
+  "main": "src/app.js",
+  "scripts": {
+    "start": "node src/app.js",
+    "heroku-postbuild": "npx playwright install --with-deps"
+  },
+  "engines": {
+    "node": ">=14.x"
+  },
   "dependencies": {
-    "express": "^4.21.1",
-    "playwright": "^1.48.2",
-    "serverless-http": "^3.2.0"
+    "express": "^4.18.2",
+    "playwright": "^1.38.0"  
   }
 }
